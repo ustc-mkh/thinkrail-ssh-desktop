@@ -7,6 +7,7 @@
   <title>Thinkrail SSH</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="app.js"></script>
+  <script defer src="window-controls.js"></script>
 </head>
 <body>
   <header>
@@ -18,6 +19,11 @@
       <button id="reconnect" class="quiet" hidden>重新连接</button>
       <button id="disconnect" class="quiet" hidden>断开</button>
     </nav>
+    <div class="window-controls" aria-label="窗口控制">
+      <button class="window-button" data-window-action="minimize" title="最小化" aria-label="最小化"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10"/></svg></button>
+      <button class="window-button" data-window-action="maximize" title="最大化" aria-label="最大化"><svg class="maximize-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx=".5"/></svg><svg class="restore-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 5.5V3h7v7h-2.5"/><rect x="3" y="6" width="7" height="7" rx=".5"/></svg></button>
+      <button class="window-button close-button" data-window-action="close" title="关闭窗口" aria-label="关闭窗口"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg></button>
+    </div>
   </header>
   <main id="home">
     <div class="intro"><div class="eyebrow">YOUR WORK, OVER SSH</div><h1>连接你的开发服务器</h1><p>原版 Thinkrail 界面，独立的桌面窗口。</p></div>

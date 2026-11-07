@@ -24,6 +24,29 @@ async function run() {
  try {
   mainWindow = await until(() => BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/ui/index.html')), 'Desktop did not open');
   await until(() => mainWindow.webContents.executeJavaScript("Boolean(window.connector && document.querySelector('#form'))"), 'Desktop did not initialize');
+  const clickWindowButton = action => mainWindow.webContents.executeJavaScript(`document.querySelector('[data-window-action="${action}"]').click()`);
+  assert.equal(await mainWindow.webContents.executeJavaScript("getComputedStyle(document.querySelector('header')).getPropertyValue('app-region')"), 'drag');
+  assert.equal(await mainWindow.webContents.executeJavaScript("getComputedStyle(document.querySelector('.window-controls')).getPropertyValue('app-region')"), 'no-drag');
+  await clickWindowButton('maximize');
+  await until(() => mainWindow.isMaximized(), 'Custom maximize button did not maximize');
+  await until(() => mainWindow.webContents.executeJavaScript("document.querySelector('[data-window-action=maximize]').getAttribute('aria-label') === '还原窗口'"), 'Window state did not reach title bar');
+  await clickWindowButton('maximize');
+  await until(() => !mainWindow.isMaximized(), 'Custom restore button did not restore');
+  // Wayland does not expose a minimized state; verify dispatch without inventing one.
+  const wayland = process.platform === 'linux' && process.env.WAYLAND_DISPLAY && !process.argv.includes('--ozone-platform=x11');
+  if (wayland) {
+    const minimize = mainWindow.minimize.bind(mainWindow);
+    let requested = false;
+    mainWindow.minimize = () => { requested = true; minimize(); };
+    await clickWindowButton('minimize');
+    await until(() => requested, 'Custom minimize button did not dispatch native minimize');
+    mainWindow.minimize = minimize;
+    console.log('WAYLAND_MINIMIZE: native request dispatched; compositor does not expose minimized state');
+  } else {
+    await clickWindowButton('minimize');
+    await until(() => mainWindow.isMinimized(), 'Custom minimize button did not minimize');
+  }
+  mainWindow.restore(); mainWindow.show(); mainWindow.focus();
   if (process.env.TRSSH_SMOKE_SCREENSHOT) {
     await new Promise(resolve => setTimeout(resolve, 200));
     const image = await mainWindow.webContents.capturePage();
@@ -35,6 +58,7 @@ async function run() {
   await until(() => workspace.executeJavaScript('window.echoes?.length > 0'), 'WebSocket did not connect through the desktop gateway');
   const identity = await workspace.executeJavaScript('window.pageIdentity');
   assert.equal(await workspace.executeJavaScript('typeof window.connector'), 'undefined');
+  assert.equal(await workspace.executeJavaScript('typeof window.windowControls'), 'undefined');
   assert.equal(await workspace.executeJavaScript('typeof require'), 'undefined');
   assert.equal(await workspace.executeJavaScript('window.echoes[0]'), 'unchanged-message');
   await mainWindow.webContents.executeJavaScript('window.connector.reconnect()');
@@ -44,9 +68,10 @@ async function run() {
   const state = await mainWindow.webContents.executeJavaScript('window.connector.getState()');
   assert.equal(state.connection.status, 'connected');
   await mainWindow.webContents.executeJavaScript('window.connector.disconnect()');
-  console.log('DESKTOP_SMOKE_PASS: real SSH, host start, HTTP/WS, isolated renderer, reconnect without page reload, local preferences retained');
+  console.log('DESKTOP_SMOKE_PASS: custom title bar maximize/restore/minimize, real SSH, HTTP/WS, isolated renderer, reconnect without page reload');
   await fixture.close();
-  app.quit();
+  await clickWindowButton('close');
+  await until(() => mainWindow.isDestroyed(), 'Custom close button did not close');
  } catch (error) {
   console.error(error);
   try {

@@ -8,6 +8,7 @@ export class Gateway {
   constructor() {
     this.key = randomBytes(32).toString('hex');
     this.target = null;
+    this.agent = null;
     this.sockets = new Set();
     this.upstreams = new Set();
     this.server = http.createServer((req, res) => this.forward(req, res));
@@ -47,7 +48,7 @@ export class Gateway {
     const headers = { ...req.headers };
     delete headers[ACCESS_HEADER];
     // Keep Host and Origin consistent for same-origin checks, while dialling the SSH endpoint.
-    return { hostname: '127.0.0.1', port: this.target, method: req.method, path: req.url, headers, agent: false };
+    return { hostname: '127.0.0.1', port: this.target, method: req.method, path: req.url, headers, agent: this.agent };
   }
 
   track(request) {
@@ -79,7 +80,8 @@ export class Gateway {
       socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
       return;
     }
-    const upstream = this.track(http.request(this.options(req)));
+    // Upgraded sockets have their own lifetime and must not queue behind HTTP requests.
+    const upstream = this.track(http.request({ ...this.options(req), agent: false }));
     upstream.on('upgrade', (response, remote, remoteHead) => {
       const lines = [`HTTP/${response.httpVersion} ${response.statusCode} ${response.statusMessage}`];
       for (let i = 0; i < response.rawHeaders.length; i += 2) {
@@ -107,6 +109,8 @@ export class Gateway {
     if (this.target === port) return;
     this.target = port;
     for (const request of this.upstreams) request.destroy();
+    this.agent?.destroy();
+    this.agent = port ? new http.Agent({ keepAlive: true, maxSockets: 16, maxTotalSockets: 16, maxFreeSockets: 4 }) : null;
     // A dead backend must close old WS pipes so the unmodified UI can reconnect itself.
     for (const socket of this.sockets) socket.destroy();
   }

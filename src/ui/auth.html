@@ -1,1 +1,15 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'"><title>SSH 认证</title><link rel="stylesheet" href="style.css"><script defer src="auth.js"></script></head><body class="auth"><h1>SSH 认证</h1><pre id="prompt"></pre><form id="auth-form"><input id="answer" type="password" aria-label="SSH 认证回答" autocomplete="off" autofocus><div class="form-actions"><button id="cancel" class="quiet" type="button">取消</button><button id="submit" class="primary" type="submit">继续</button></div></form></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>SSH 认证</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="auth.js"></script>
+  <script defer src="window-controls.js"></script>
+</head>
+<body class="auth">
+  <header class="auth-titlebar"><span>SSH 认证</span><div class="window-controls"><button class="window-button close-button" data-window-action="close" title="取消认证并关闭" aria-label="取消认证并关闭"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg></button></div></header>
+  <main class="auth-content"><pre id="prompt"></pre><form id="auth-form"><input id="answer" type="password" aria-label="SSH 认证回答" autocomplete="off" autofocus><div class="form-actions"><button id="cancel" class="quiet" type="button">取消</button><button id="submit" class="primary" type="submit">继续</button></div></form></main>
+</body>
+</html>

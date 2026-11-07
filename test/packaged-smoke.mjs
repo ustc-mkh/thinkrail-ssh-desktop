@@ -79,7 +79,13 @@ try {
   await until(() => workspace.eval('window.echoes?.length > 1'), 'Packaged reconnect did not restore WebSocket');
   assert.equal(await workspace.eval('window.pageIdentity'), identity);
   assert.equal(await workspace.eval('typeof window.connector'), 'undefined');
-  console.log('PACKAGED_SMOKE_PASS: launcher, encrypted SSH key prompt, form submission, HTTP/WS, reconnect without page reload');
+  assert.equal(await workspace.eval('typeof window.windowControls'), 'undefined');
+  await main.eval("document.querySelector('#reconnect').click();true");
+  const cancelledTarget = await until(async () => (await targets()).find(t => t.url.endsWith('/ui/auth.html')), 'Authentication dialog did not reopen');
+  const cancelled = await debuggerFor(cancelledTarget); clients.push(cancelled);
+  await cancelled.eval("document.querySelector('[data-window-action=close]').click();true");
+  await until(() => main.eval("window.connector.getState().then(s => s.connection.stage === '认证已取消')"), 'Custom auth close did not cancel SSH');
+  console.log('PACKAGED_SMOKE_PASS: launcher, encrypted SSH key prompt, custom auth close cancellation, HTTP/WS, reconnect without page reload');
 } catch (error) {
   console.error(error, diagnostics);
   process.exitCode = 1;

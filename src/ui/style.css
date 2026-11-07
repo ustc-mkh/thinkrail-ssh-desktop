@@ -6,7 +6,18 @@ button { cursor: pointer; white-space: nowrap; }
 button:disabled { cursor: default; opacity: .5; }
 button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 button[hidden], [hidden] { display: none !important; }
-header { height: 64px; display: flex; align-items: center; gap: 24px; padding: 0 24px; border-bottom: 1px solid var(--line); background: #14181b; }
+header { height: 64px; display: flex; align-items: center; gap: 24px; padding: 0 16px 0 24px; border-bottom: 1px solid var(--line); background: #14181b; app-region: drag; user-select: none; }
+header nav, .window-controls { app-region: no-drag; }
+.window-controls { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.window-button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #ffffff08; color: #aeb9b3; app-region: no-drag; }
+.window-button:hover { background: #ffffff18; color: #fff; }
+.window-button:active { background: #ffffff25; }
+.window-button svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.close-button { background: #ffffff12; }
+.close-button:hover { background: #bf5353; color: #fff; }
+.window-button .restore-icon, .is-maximized .window-button .maximize-icon { display: none; }
+.is-maximized .window-button .restore-icon { display: block; }
+.window-inactive header .brand, .window-inactive header .connection-status { opacity: .65; }
 .brand { display: flex; align-items: center; gap: 7px; font-weight: 650; letter-spacing: -.2px; white-space: nowrap; }
 .brand .muted { font-weight: 400; }
 .mark { display: grid; place-items: center; width: 27px; height: 27px; background: var(--accent); color: #16261c; border-radius: 7px; margin-right: 4px; font-size: 21px; }
@@ -65,7 +76,9 @@ summary { cursor: pointer; font-size: 12px; color: #a0afa5; }
 pre { background: #0c1012; border: 1px solid #28312c; border-radius: 6px; max-height: 200px; overflow: auto; font-size: 11px; padding: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; color: #a0b1a5; }
 .log-actions { display: flex; justify-content: flex-end; }
 footer { color: #6d7d72; font-size: 10px; margin: 25px 0 0 238px; line-height: 1.8; }
-.auth { padding: 24px; }
+.auth { padding: 0; }
+.auth-titlebar { height: 44px; padding: 0 14px 0 20px; font-size: 12px; justify-content: space-between; }
+.auth-content { padding: 5px 24px 20px; margin: 0; }
 .auth h1 { font-size: 18px; }
 .auth pre { max-height: 110px; margin: 15px 0; }
 .auth .form-actions { border: 0; margin: 12px 0 0; padding-top: 8px; }

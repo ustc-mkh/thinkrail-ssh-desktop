@@ -32,6 +32,23 @@ function layout() {
   view.setVisible(!settings);
 }
 
+function trustedWindow(event) {
+  const target = [window, authWindow].find(candidate => candidate && !candidate.isDestroyed() && candidate.webContents === event.sender);
+  if (!target || event.senderFrame !== target.webContents.mainFrame) throw new Error('Untrusted window control sender');
+  return target;
+}
+
+function windowState(target) {
+  return { maximized: target.isMaximized() || target.isFullScreen(), focused: target.isFocused() };
+}
+
+function attachWindowState(target) {
+  const publish = () => {
+    if (!target.isDestroyed()) target.webContents.send('window:changed', windowState(target));
+  };
+  for (const event of ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'focus', 'blur']) target.on(event, publish);
+}
+
 function openExternal(url) {
   try {
     const parsed = new URL(url);
@@ -135,10 +152,11 @@ async function authenticate(prompt) {
     authResolve = resolve;
     const promptWindow = new BrowserWindow({
       parent: window, modal: true, width: 520, height: 330, resizable: false, minimizable: false,
-      title: 'SSH 认证', autoHideMenuBar: true,
+      title: 'SSH 认证', frame: false, maximizable: false, autoHideMenuBar: true,
       webPreferences: { preload: join(root, 'auth-preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false },
     });
     authWindow = promptWindow;
+    attachWindowState(promptWindow);
     promptWindow.on('closed', () => {
       if (authWindow !== promptWindow) return;
       if (authResolve) { authResolve(null); connection?.cancelAuthentication(); }
@@ -172,8 +190,24 @@ else {
     askpass = await createAskpass(authenticate);
     window = new BrowserWindow({
       width: 1280, height: 860, minWidth: 780, minHeight: 600, title: 'Thinkrail SSH',
-      backgroundColor: '#101316', autoHideMenuBar: true,
+      backgroundColor: '#101316', frame: false, autoHideMenuBar: true,
       webPreferences: { preload: join(root, 'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false },
+    });
+    attachWindowState(window);
+    ipcMain.handle('window:state', event => windowState(trustedWindow(event)));
+    ipcMain.handle('window:action', (event, action) => {
+      const target = trustedWindow(event);
+      switch (action) {
+        case 'minimize': if (target.isMinimizable()) target.minimize(); break;
+        case 'maximize':
+          if (target.isFullScreen()) target.setFullScreen(false);
+          else if (target.isMaximizable()) {
+            if (target.isMaximized()) target.unmaximize(); else target.maximize();
+          }
+          break;
+        case 'close': target.close(); break;
+        default: throw new Error('Unknown window action');
+      }
     });
     Menu.setApplicationMenu(Menu.buildFromTemplate([
       { label: '连接', submenu: [

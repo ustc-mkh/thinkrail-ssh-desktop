@@ -4,7 +4,7 @@
 
 不 fork Thinkrail，不捆绑固定版本的 Thinkrail 前端，不解析聊天、文件或终端协议，不注入上游 DOM。远端提供什么版本的页面，桌面端就显示什么版本的页面。连接器自身只有 Electron 一个开发依赖，运行逻辑全部使用 Node.js 标准库。
 
-v0.1.1：HTTP Keep-Alive 连接池，以及独立于 GNOME 原生装饰的自定义标题栏。[下载 Linux 版本](https://github.com/ustc-mkh/thinkrail-ssh-desktop/releases/latest)。
+v0.1.2：36px 紧凑自定义标题栏，保留 HTTP Keep-Alive 连接池。[下载 Linux 版本](https://github.com/ustc-mkh/thinkrail-ssh-desktop/releases/latest)。
 
 ## 使用
 
@@ -71,7 +71,7 @@ Host dev-server
 
 ## 窗口
 
-主窗口和 SSH 认证弹窗使用应用自己的标题栏，去掉 GNOME 原生标题栏。拖动顶部空白区域可移动窗口，窗口按钮提供最小化、最大化/还原和关闭；拖动区域的双击行为由 Electron/桌面环境处理。按钮区域不参与拖动。关闭认证弹窗会取消本次认证。
+主窗口和 SSH 认证弹窗使用应用自己的 36px 紧凑标题栏，去掉 GNOME 原生标题栏。拖动顶部空白区域可移动窗口，窗口按钮提供最小化、最大化/还原和关闭；拖动区域的双击行为由 Electron/桌面环境处理。按钮区域不参与拖动。关闭认证弹窗会取消本次认证。
 
 窗口操作只提供给本地连接管理页和认证页，远端 Thinkrail 页面不会得到窗口控制 IPC，也不需要修改其标题栏或 DOM。
 

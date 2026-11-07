@@ -8,6 +8,7 @@ import { ACCESS_HEADER } from './core/gateway.js';
 import { createAskpass } from './core/askpass.js';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
+const TITLEBAR_HEIGHT = 36;
 if (process.env.THINKRAIL_SSH_DATA_DIR) app.setPath('userData', process.env.THINKRAIL_SSH_DATA_DIR);
 app.setName('Thinkrail SSH');
 let window, view, connection, askpass, store;
@@ -28,7 +29,7 @@ function log(message) { logs = [...logs.slice(-99), { time: new Date().toLocaleT
 function layout() {
   if (!window || !view) return;
   const [width, height] = window.getContentSize();
-  view.setBounds({ x: 0, y: 64, width, height: Math.max(0, height - 64) });
+  view.setBounds({ x: 0, y: TITLEBAR_HEIGHT, width, height: Math.max(0, height - TITLEBAR_HEIGHT) });
   view.setVisible(!settings);
 }
 

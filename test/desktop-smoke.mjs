@@ -25,6 +25,7 @@ async function run() {
   mainWindow = await until(() => BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/ui/index.html')), 'Desktop did not open');
   await until(() => mainWindow.webContents.executeJavaScript("Boolean(window.connector && document.querySelector('#form'))"), 'Desktop did not initialize');
   const clickWindowButton = action => mainWindow.webContents.executeJavaScript(`document.querySelector('[data-window-action="${action}"]').click()`);
+  assert.equal(await mainWindow.webContents.executeJavaScript("document.querySelector('header').getBoundingClientRect().height"), 36);
   assert.equal(await mainWindow.webContents.executeJavaScript("getComputedStyle(document.querySelector('header')).getPropertyValue('app-region')"), 'drag');
   assert.equal(await mainWindow.webContents.executeJavaScript("getComputedStyle(document.querySelector('.window-controls')).getPropertyValue('app-region')"), 'no-drag');
   await clickWindowButton('maximize');
@@ -56,6 +57,7 @@ async function run() {
   await mainWindow.webContents.executeJavaScript(`window.connector.connect(${JSON.stringify(profile)})`);
   const workspace = await until(() => webContents.getAllWebContents().find(w => w.getURL().startsWith('http://127.0.0.1:')), 'Workspace did not open');
   await until(() => workspace.executeJavaScript('window.echoes?.length > 0'), 'WebSocket did not connect through the desktop gateway');
+  await until(() => workspace.executeJavaScript('innerHeight').then(height => height === mainWindow.getContentSize()[1] - 36), 'Workspace did not align with the compact title bar');
   const identity = await workspace.executeJavaScript('window.pageIdentity');
   assert.equal(await workspace.executeJavaScript('typeof window.connector'), 'undefined');
   assert.equal(await workspace.executeJavaScript('typeof window.windowControls'), 'undefined');

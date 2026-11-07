@@ -15,6 +15,7 @@
 - 使用隔离 sshd 和临时密钥的真实 OpenSSH 集成：后台启动、断线重连复用原进程、固定页面 origin、断开后服务继续运行。
 - Electron 源码桌面测试：HTTP/WS 正常、远端无 Node/连接管理 IPC、重连不刷新页面、本地偏好保留。
 - 自定义标题栏：最大化、还原、最小化、关闭及最大化图标状态；远端页面没有窗口控制桥。拖动区域和按钮排除区域经过 CSS 检查，实际鼠标拖动/双击仍需用户在自己的 GNOME 配置下确认。
+- v0.1.2：标题栏由 64px 改为 36px，工作视图同步上移；桌面测试检查标题栏实际高度和工作视图可用高度。
 - GNOME/X11 可查询最小化状态；Wayland 按 [Electron 文档](https://www.electronjs.org/docs/latest/api/browser-window#event-minimize)不暴露最小化状态，因此 Wayland 测试只验证按钮调用原生最小化，不伪造该状态。
 - 打包后的 Linux 启动器测试：真实表单提交、加密 SSH 密钥弹窗、HTTP/WS、再次认证后的重连不刷新页面。
 - 官方 Thinkrail **v0.3.2** 初始页面：从官方 release 下载 CLI 并核验 SHA256SUMS；在临时数据目录、真实本地 SSH 隔离环境启动，原版前端成功挂载、显示 **Connected**，同源资源无 HTTP 4xx/5xx。未使用真实模型凭证。

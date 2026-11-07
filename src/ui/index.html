@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>Thinkrail SSH</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="mark">↗</span> Thinkrail <span class="muted">SSH</span></div>
+    <div class="connection-status"><span id="status-dot" class="dot"></span><span id="status">尚未连接</span><span id="host" class="muted"></span></div>
+    <nav>
+      <button id="workspace" class="quiet" hidden>工作区</button>
+      <button id="settings" class="quiet" hidden>连接设置</button>
+      <button id="reconnect" class="quiet" hidden>重新连接</button>
+      <button id="disconnect" class="quiet" hidden>断开</button>
+    </nav>
+  </header>
+  <main id="home">
+    <div class="intro"><div class="eyebrow">YOUR WORK, OVER SSH</div><h1>连接你的开发服务器</h1><p>原版 Thinkrail 界面，独立的桌面窗口。</p></div>
+    <div class="layout">
+      <aside><div class="aside-heading"><h2>服务器</h2><button id="add" class="quiet" title="添加服务器" aria-label="添加服务器">＋</button></div><div id="profiles"></div><p id="empty" class="small muted">保存的连接会显示在这里。</p><div class="aside-note"><span class="dot small-dot"></span> 使用系统 OpenSSH<br><span class="muted">复用你的密钥和 SSH 配置</span></div></aside>
+      <section class="card">
+        <form id="form">
+          <div class="card-heading"><h2 id="form-title">新建连接</h2><span class="badge">SSH</span></div>
+          <label for="ssh-host">SSH 主机</label>
+          <input id="ssh-host" name="host" placeholder="dev-server 或 user@hostname" autocomplete="off" spellcheck="false" required maxlength="256">
+          <p class="hint">可直接使用 ~/.ssh/config 中的主机别名。</p>
+          <label for="project">项目路径 <span class="optional">可选</span></label>
+          <input id="project" placeholder="/home/you/projects/my-project" autocomplete="off" spellcheck="false" maxlength="2048">
+          <p class="hint">仅在启动远端服务时使用；已有服务会恢复原来的工作区。</p>
+          <label class="checkbox"><input id="auto-start" type="checkbox" checked><span>需要时启动远端 Thinkrail</span></label>
+          <details id="advanced"><summary>高级设置</summary><div class="advanced-grid"><div><label for="port">远端端口</label><input id="port" type="number" value="24242" min="1" max="65535" required></div><div><label for="binary">远端可执行文件</label><input id="binary" value="thinkrail" placeholder="thinkrail 或绝对路径" spellcheck="false" required></div></div><p class="hint">SSH 端口、跳板机和身份文件统一在 ~/.ssh/config 中配置。</p><button id="reset-address" class="text-button" type="button" hidden>重置本地地址</button></details>
+          <div id="error" class="error" role="alert" hidden></div>
+          <div class="form-actions"><button id="remove" class="quiet danger" type="button" hidden>删除连接</button><button id="connect" class="primary" type="submit">连接服务器 <span>→</span></button></div>
+        </form>
+      </section>
+    </div>
+    <details class="logs"><summary>连接日志 <span id="log-count" class="muted"></span></summary><pre id="log" aria-live="polite">暂无日志</pre><div class="log-actions"><button id="reload" class="quiet" hidden>刷新工作页面</button></div></details>
+    <footer>界面随远端 Thinkrail 更新 · 断开连接不会停止远端任务</footer>
+  </main>
+</body>
+</html>

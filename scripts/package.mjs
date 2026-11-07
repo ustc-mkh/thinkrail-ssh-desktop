@@ -1,0 +1,28 @@
+import electronBinary from 'electron';
+import { writeFile, chmod, copyFile, cp, mkdir, rm, rename, readFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+if (process.platform !== 'linux') throw new Error('此打包脚本目前面向 Linux；其他平台可通过 npm start 开发验证。');
+const directory = `dist/thinkrail-ssh-linux-${process.arch}`;
+await mkdir('dist', { recursive: true });
+await rm(directory, { recursive: true, force: true });
+await cp(dirname(electronBinary), directory, { recursive: true });
+await rename(join(directory, 'electron'), join(directory, 'thinkrail-ssh'));
+await rm(join(directory, 'resources/default_app.asar'), { force: true });
+const appDir = join(directory, 'resources/app');
+await mkdir(appDir, { recursive: true });
+await cp('src', join(appDir, 'src'), { recursive: true });
+const metadata = JSON.parse(await readFile('package.json', 'utf8'));
+delete metadata.devDependencies;
+delete metadata.scripts;
+await writeFile(join(appDir, 'package.json'), JSON.stringify(metadata, null, 2));
+await copyFile('LICENSE', join(appDir, 'LICENSE'));
+await writeFile(join(directory, 'start.sh'), '#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./thinkrail-ssh "$@"\n');
+await chmod(join(directory, 'start.sh'), 0o755);
+await copyFile('README.md', join(directory, 'README.md'));
+await copyFile('VALIDATION.md', join(directory, 'VALIDATION.md'));
+const archive = `dist/thinkrail-ssh-linux-${process.arch}.tar.gz`;
+const result = spawnSync('tar', ['-czf', archive, '-C', 'dist', `thinkrail-ssh-linux-${process.arch}`], { stdio: 'inherit' });
+if (result.status !== 0) throw new Error('归档失败');
+console.log(`Built ${archive}`);
